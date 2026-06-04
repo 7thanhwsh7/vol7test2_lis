@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>G.EDU – Listening Test</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #D4AF37;
+    --gold-light: #f0d97a;
+    --bg: #fdfcfb;
+    --text: #2d3436;
+    --muted: #8a8a8a;
+    --border: #e8e3dc;
+    --sidebar-w: 280px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Be Vietnam Pro', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* ===== START SCREEN ===== */
+  #startScreen {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; padding: 24px;
+    background: linear-gradient(135deg, #fdfcfb 0%, #f5f0e8 100%);
+  }
+  .start-card {
+    background: #fff; border: 1px solid var(--border);
+    border-radius: 16px; padding: 48px 40px;
+    width: 100%; max-width: 460px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+  }
+  .logo { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--gold); letter-spacing: 2px; margin-bottom: 4px; }
+  .start-subtitle { font-size: 0.78rem; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 32px; }
+  .test-title-start { font-family: 'Playfair Display', serif; font-size: 1.35rem; color: var(--text); margin-bottom: 32px; line-height: 1.4; }
+  .field-group { margin-bottom: 22px; }
+  .field-group label { display: block; font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .field-group input {
+    width: 100%; border: none; border-bottom: 1.5px solid var(--border);
+    background: transparent; font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 1rem; color: var(--text); padding: 8px 2px;
+    outline: none; transition: border-color .2s;
+  }
+  .field-group input:focus { border-bottom-color: var(--gold); }
+  .btn-start {
+    width: 100%; padding: 14px; background: var(--gold);
+    border: none; border-radius: 8px; font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 0.95rem; font-weight: 600; color: #fff; letter-spacing: 1px;
+    cursor: pointer; transition: background .2s, transform .1s;
+    margin-top: 8px;
+  }
+  .btn-start:hover { background: #b8931e; }
+  .btn-start:active { transform: scale(0.98); }
+  .btn-start:disabled { background: #ccc; cursor: not-allowed; }
+
+  /* ===== TEST SCREEN ===== */
+  #testScreen { display: none; }
+
+  /* Sidebar */
+  .sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0;
+    width: var(--sidebar-w); background: #fff;
+    border-right: 1px solid var(--border);
+    padding: 28px 20px; overflow-y: auto;
+    z-index: 100; display: flex; flex-direction: column; gap: 24px;
+  }
+  .sidebar-logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--gold); letter-spacing: 2px; }
+  .sidebar-test-name { font-size: 0.7rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+  .sidebar-parts { display: flex; flex-direction: column; gap: 20px; }
+  .sidebar-part-label {
+    font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted); cursor: pointer; margin-bottom: 8px;
+    transition: color .2s;
+  }
+  .sidebar-part-label:hover { color: var(--gold); }
+  .q-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .q-box {
+    aspect-ratio: 1; border-radius: 6px; border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem; font-weight: 600; color: var(--muted);
+    cursor: pointer; transition: all .15s;
+  }
+  .q-box.answered { background: var(--gold); border-color: var(--gold); color: #fff; }
+  .sidebar-submit {
+    margin-top: auto; padding: 12px; background: var(--gold);
+    border: none; border-radius: 8px; font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 0.85rem; font-weight: 600; color: #fff; cursor: pointer; letter-spacing: 1px;
+    transition: background .2s;
+  }
+  .sidebar-submit:hover { background: #b8931e; }
+
+  /* Main content */
+  .main-content {
+    margin-left: var(--sidebar-w);
+    padding: 40px 48px;
+    max-width: calc(860px + var(--sidebar-w));
+  }
+  .exam-header { margin-bottom: 40px; border-bottom: 1px solid var(--border); padding-bottom: 24px; }
+  .exam-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 4px; }
+  .exam-meta { font-size: 0.8rem; color: var(--muted); }
+  .part-section { margin-bottom: 48px; scroll-margin-top: 32px; }
+  .part-heading {
+    font-family: 'Playfair Display', serif; font-size: 1.3rem;
+    color: var(--text); margin-bottom: 6px;
+    padding-bottom: 10px; border-bottom: 2px solid var(--gold);
+    display: inline-block;
+  }
+  .part-instruction { font-size: 0.82rem; color: var(--muted); margin: 10px 0 20px; line-height: 1.6; }
+  .q-block { margin-bottom: 28px; }
+  .q-title { font-size: 0.82rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 14px; }
+
+  /* Notes completion (Part 1, Part 4) */
+  .notes-box {
+    background: #faf8f4; border: 1px solid var(--border);
+    border-radius: 10px; padding: 28px 32px; line-height: 2.2;
+    font-size: 0.93rem;
+  }
+  .notes-box h3 { font-family: 'Playfair Display', serif; text-align: center; margin-bottom: 18px; font-size: 1.1rem; }
+  .notes-box h4 { font-style: italic; font-family: 'Playfair Display', serif; margin: 10px 0 4px; }
+  .notes-box .section-heading { font-weight: 700; font-style: italic; color: var(--text); }
+  .notes-box ul { padding-left: 22px; }
+  .notes-box li { margin-bottom: 4px; }
+  .inline-input {
+    border: none; border-bottom: 1.5px solid var(--gold);
+    background: transparent; font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 0.93rem; color: var(--text); padding: 0 4px;
+    width: 140px; outline: none; transition: border-color .2s;
+    display: inline-block;
+  }
+  .inline-input:focus { border-bottom-color: #b8931e; }
+  .q-num { font-size: 0.75rem; font-weight: 700; color: var(--gold); margin-right: 4px; vertical-align: middle; }
+
+  /* MCQ */
+  .mcq-item { margin-bottom: 22px; }
+  .mcq-question { font-size: 0.93rem; font-weight: 600; margin-bottom: 10px; line-height: 1.5; }
+  .mcq-options { display: flex; flex-direction: column; gap: 6px; padding-left: 4px; }
+  .mcq-opt {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 9px 14px; border-radius: 8px; border: 1.5px solid var(--border);
+    cursor: pointer; transition: all .15s; font-size: 0.88rem; line-height: 1.45;
+  }
+  .mcq-opt:hover { border-color: var(--gold); background: #fffdf5; }
+  .mcq-opt input[type="radio"] { display: none; }
+  .mcq-opt.selected { border-color: var(--gold); background: #fffbef; }
+  .opt-letter { font-weight: 700; color: var(--gold); min-width: 18px; }
+
+  /* Matching (Q16-20) */
+  .matching-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.9rem; }
+  .matching-table th { text-align: left; padding: 8px 12px; font-size: 0.72rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .matching-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  .matching-table select {
+    border: none; border-bottom: 1.5px solid var(--gold);
+    background: transparent; font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 0.88rem; color: var(--text); padding: 2px 4px; outline: none; cursor: pointer;
+  }
+
+  /* Part 3 matching (Q21-26) */
+  .match3-item { margin-bottom: 10px; display: flex; align-items: center; gap: 12px; font-size: 0.9rem; }
+  .match3-item label { min-width: 220px; font-weight: 500; }
+  .match3-item select {
+    border: none; border-bottom: 1.5px solid var(--gold);
+    background: transparent; font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 0.88rem; color: var(--text); padding: 2px 6px; outline: none; cursor: pointer;
+  }
+
+  /* Hamburger */
+  .hamburger { display: none; position: fixed; top: 16px; left: 16px; z-index: 200; background: var(--gold); border: none; border-radius: 8px; padding: 8px 10px; cursor: pointer; flex-direction: column; gap: 4px; }
+  .hamburger span { display: block; width: 22px; height: 2px; background: #fff; border-radius: 2px; }
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 99; }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45); z-index: 500;
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-box {
+    background: #fff; border-radius: 16px; padding: 40px 36px;
+    max-width: 400px; width: 100%; text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  }
+  .modal-box h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 10px; }
+  .modal-box p { font-size: 0.88rem; color: var(--muted); margin-bottom: 28px; line-height: 1.6; }
+  .modal-btns { display: flex; gap: 12px; justify-content: center; }
+  .modal-btn { padding: 11px 28px; border-radius: 8px; border: none; font-family: 'Be Vietnam Pro', sans-serif; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all .15s; }
+  .modal-btn.cancel { background: var(--border); color: var(--text); }
+  .modal-btn.confirm { background: var(--gold); color: #fff; }
+  .modal-btn:hover { opacity: 0.85; }
+
+  /* ===== RESULT ===== */
+  #resultScreen {
+    display: none; align-items: center; justify-content: center;
+    min-height: 100vh; flex-direction: column; padding: 40px 24px;
+    background: linear-gradient(135deg, #fdfcfb 0%, #f5f0e8 100%);
+  }
+  .result-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 16px;
+    padding: 48px 40px; max-width: 500px; width: 100%;
+    text-align: center; box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+  }
+  .result-logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--gold); margin-bottom: 8px; }
+  .result-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 28px; }
+  .score-circle {
+    width: 120px; height: 120px; border-radius: 50%;
+    border: 4px solid var(--gold); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; margin: 0 auto 24px;
+  }
+  .score-big { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: var(--gold); line-height: 1; }
+  .score-total { font-size: 0.78rem; color: var(--muted); }
+  .result-name { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
+  .result-cls { font-size: 0.82rem; color: var(--muted); margin-bottom: 24px; }
+  .ans-right { color: #27ae60; font-weight: 600; }
+  .ans-wrong { color: #e74c3c; font-weight: 600; }
+  .result-status { font-size: 0.75rem; color: var(--muted); margin-top: 16px; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); transition: transform .3s; }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-overlay.open { display: block; }
+    .hamburger { display: flex; }
+    .main-content { margin-left: 0; padding: 24px 20px; padding-top: 64px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== START SCREEN ===== -->
+<div id="startScreen">
+  <div class="start-card">
+    <div class="logo">G.EDU</div>
+    <div class="test-title-start">IELTS Practice – Listening Test 2</div>
+    <div class="field-group">
+      <label>Họ và Tên</label>
+      <input type="text" id="inputName" placeholder="Họ và tên" autocomplete="off">
+    </div>
+    <div class="field-group">
+      <label>Lớp</label>
+      <input type="text" id="inputCls" placeholder="Lớp" autocomplete="off">
+    </div>
+    <button class="btn-start" id="btnStart" onclick="startExam()">BẮT ĐẦU THI</button>
+  </div>
+</div>
+
+<!-- ===== TEST SCREEN ===== -->
+<div id="testScreen">
+  <button class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <div class="sidebar" id="sidebar">
+    <div>
+      <div class="sidebar-logo">G.EDU</div>
+      <div class="sidebar-test-name">Listening Test 2</div>
+    </div>
+    <div class="sidebar-parts" id="sidebarParts"></div>
+    <button class="sidebar-submit" onclick="openModal()">NỘP BÀI ▶</button>
+  </div>
+
+  <div class="main-content">
+    <div class="exam-header">
+      <div class="exam-title">IELTS Listening – Test 2</div>
+      <div class="exam-meta">40 câu hỏi &nbsp;·&nbsp; 4 phần &nbsp;·&nbsp; Nghe một lần</div>
+      <!-- Hidden audio (no controls) -->
+      <audio id="examAudio" src="[AUDIO_PLACEHOLDER.mp3]" preload="auto"></audio>
+    </div>
+    <div id="questionsContainer"></div>
+  </div>
+</div>
+
+<!-- ===== SUBMIT MODAL ===== -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <h3>Nộp bài?</h3>
+    <p>Bạn có chắc chắn muốn nộp bài không?<br>Sau khi nộp, bạn không thể chỉnh sửa câu trả lời.</p>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" onclick="closeModal()">Hủy</button>
+      <button class="modal-btn confirm" onclick="submitExam()">Nộp bài</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== RESULT SCREEN ===== -->
+<div id="resultScreen">
+  <div class="result-card">
+    <div class="result-logo">G.EDU</div>
+    <div class="result-title">Kết quả bài thi</div>
+    <div class="score-circle">
+      <div class="score-big" id="resFinalScore">0</div>
+      <div class="score-total">/ 40</div>
+    </div>
+    <div class="result-name" id="resName"></div>
+    <div class="result-cls" id="resCls"></div>
+
+    <div class="result-status" id="resStatus">Đang gửi kết quả...</div>
+  </div>
+</div>
+
+<script>
+// ======================= DATA =======================
+const TEST_NAME = "listening_test2";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbze-ULqfpnB5IcJxAvg2m7IfSqkoUY4JmoHnjvpuGvxodzmLbhHHlcqxfcnha2aahY/exec";
+
+const ANSWER_KEY = {
+  1: "JAMIESON", 2: "11 July", 3: "waiter", 4: "sing",
+  5: "children", 6: "drive", 7: "transport", 8: "meals",
+  9: "thursday", 10: "photo",
+  11: "B", 12: "C", 13: "B", 14: "C", 15: "A",
+  16: "C", 17: "B", 18: "C", 19: "B", 20: "A",
+  21: "C", 22: "A", 23: "G", 24: "B", 25: "E", 26: "H",
+  27: "B", 28: "D", 29: "B", 30: "E",
+  31: "success", 32: "social", 33: "plans", 34: "influence",
+  35: "materials", 36: "skills", 37: "reason", 38: "emotional",
+  39: "environment", 40: "analysis"
+};
+
+const PARTS = [
+  { id: "part1", label: "PART 1", qs: [1,2,3,4,5,6,7,8,9,10] },
+  { id: "part2", label: "PART 2", qs: [11,12,13,14,15,16,17,18,19,20] },
+  { id: "part3", label: "PART 3", qs: [21,22,23,24,25,26,27,28,29,30] },
+  { id: "part4", label: "PART 4", qs: [31,32,33,34,35,36,37,38,39,40] },
+];
+
+let studentName = "", studentCls = "";
+let userAnswers = {};
+
+// ======================= START =======================
+function startExam() {
+  studentName = document.getElementById("inputName").value.trim();
+  studentCls = document.getElementById("inputCls").value.trim();
+  if (!studentName || !studentCls) { alert("Vui lòng nhập Họ tên và Lớp!"); return; }
+  document.getElementById("startScreen").style.display = "none";
+  showTestScreen();
+}
+
+// ======================= BUILD TEST =======================
+function showTestScreen() {
+  buildQuestionsHTML();
+  buildSidebar();
+  document.getElementById("testScreen").style.display = "flex";
+  const audio = document.getElementById("examAudio");
+  audio.play().catch(() => {});
+}
+
+function buildSidebar() {
+  const container = document.getElementById("sidebarParts");
+  container.innerHTML = "";
+  PARTS.forEach(p => {
+    const div = document.createElement("div");
+    div.innerHTML = `<div class="sidebar-part-label" onclick="scrollToPart('${p.id}')">${p.label}</div><div class="q-grid">${p.qs.map(q=>`<div class="q-box" id="qbox-${q}" onclick="scrollToQ(${q})">${q}</div>`).join("")}</div>`;
+    container.appendChild(div);
+  });
+}
+
+function buildQuestionsHTML() {
+  const cont = document.getElementById("questionsContainer");
+  cont.innerHTML = `
+    ${buildPart1()}
+    ${buildPart2()}
+    ${buildPart3()}
+    ${buildPart4()}
+  `;
+  attachListeners();
+}
+
+// ---- PART 1 ----
+function buildPart1() {
+  return `<div class="part-section" id="part1">
+    <div class="part-heading">PART 1</div>
+    <div class="part-instruction">Questions 1–10 · Complete the notes below. Write <strong>ONE WORD AND/OR A NUMBER</strong> for each answer.</div>
+    <div class="notes-box">
+      <h3>Holiday Job</h3>
+      <p><strong>Location 1</strong> &nbsp; <span class="q-num">1</span><input class="inline-input" data-q="1" placeholder="…"> Island</p>
+      <p><strong>Start date</strong> &nbsp; <span class="q-num">2</span><input class="inline-input" data-q="2" placeholder="…"></p>
+      <p><strong>Available jobs</strong></p>
+      <ul>
+        <li>Vacancy 1: Calypso Bistro
+          <ul>
+            <li>working as a &nbsp;<span class="q-num">3</span><input class="inline-input" data-q="3" placeholder="…"></li>
+            <li>no experience needed</li>
+          </ul>
+        </li>
+        <li>Vacancy 2: Guest Liaison
+          <ul><li>must be able to &nbsp;<span class="q-num">4</span><input class="inline-input" data-q="4" placeholder="…"></li></ul>
+        </li>
+        <li>Vacancy 3: Activities staff
+          <ul>
+            <li>help with games and water sports</li>
+            <li>need experience with &nbsp;<span class="q-num">5</span><input class="inline-input" data-q="5" placeholder="…"></li>
+          </ul>
+        </li>
+        <li>Vacancy 4: In reception
+          <ul>
+            <li>as a porter</li>
+            <li>must be able to &nbsp;<span class="q-num">6</span><input class="inline-input" data-q="6" placeholder="…"></li>
+          </ul>
+        </li>
+        <li>Benefits for all jobs
+          <ul>
+            <li>there is free &nbsp;<span class="q-num">7</span><input class="inline-input" data-q="7" placeholder="…"></li>
+            <li><span class="q-num">8</span><input class="inline-input" data-q="8" placeholder="…"> &nbsp; are provided</li>
+          </ul>
+        </li>
+      </ul>
+      <p><strong>Interview</strong></p>
+      <ul>
+        <li>to be held on &nbsp;<span class="q-num">9</span><input class="inline-input" data-q="9" placeholder="…"> &nbsp; at 2pm</li>
+        <li>bring a CV and a &nbsp;<span class="q-num">10</span><input class="inline-input" data-q="10" placeholder="…"></li>
+      </ul>
+    </div>
+  </div>`;
+}
+
+// ---- PART 2 ----
+function mcq(qNum, question, options) {
+  return `<div class="mcq-item" id="q-anchor-${qNum}">
+    <div class="mcq-question"><span class="q-num">${qNum}</span> ${question}</div>
+    <div class="mcq-options">
+      ${options.map((o,i)=>{
+        const letter = String.fromCharCode(65+i);
+        return `<label class="mcq-opt" data-q="${qNum}" data-val="${letter}">
+          <input type="radio" name="q${qNum}" value="${letter}">
+          <span class="opt-letter">${letter}</span><span>${o}</span>
+        </label>`;
+      }).join("")}
+    </div>
+  </div>`;
+}
+
+function buildPart2() {
+  return `<div class="part-section" id="part2">
+    <div class="part-heading">PART 2</div>
+    <div class="part-instruction">Questions 11–15 · Choose the correct answer.</div>
+    <div class="q-block">
+      ${mcq(11,"The walk is organised specifically for",["extremely fit people.","parents with their children.","tourists unfamiliar with the local area."])}
+      ${mcq(12,"The maximum number of people on the walk will be",["220.","250.","280."])}
+      ${mcq(13,"The organisers will stop walkers taking part if they",["arrive without a waterproof coat.","are causing a lot of trouble.","are unable to answer basic safety questions."])}
+      ${mcq(14,"The walk was cancelled two years previously because of",["illness in the organising team.","very stormy weather.","problems getting people to help."])}
+      ${mcq(15,"Badges can be obtained",["only when they have been ordered before the walk.","immediately people have completed the whole walk.","one week after the walk has finished."])}
+    </div>
+    <div class="part-instruction" style="margin-top:32px">Questions 16–20 · What advice does Peter give about the following objects?<br>
+    <strong>A.</strong> Walkers are advised to have this &nbsp;&nbsp;
+    <strong>B.</strong> Walkers can have this, if they wish &nbsp;&nbsp;
+    <strong>C.</strong> Walkers are advised NOT to have this</div>
+    <div class="q-block">
+      <table class="matching-table">
+        <thead><tr><th>#</th><th>Object</th><th>Answer</th></tr></thead>
+        <tbody>
+          ${[
+            [16,"a pair of thick trousers"],
+            [17,"a mobile phone"],
+            [18,"a torch"],
+            [19,"something to drink"],
+            [20,"a rucksack"],
+          ].map(([n,obj])=>`<tr><td><span class="q-num">${n}</span></td><td>${obj}</td><td>
+            <select data-q="${n}">
+              <option value="">--</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+            </select></td></tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+// ---- PART 3 ----
+const p3Comments = {
+  A:"information is not freely accessible",
+  B:"too detailed for their purposes",
+  C:"contains a useful tool for users",
+  D:"convenient format",
+  E:"up-to-date information",
+  F:"difficult to navigate",
+  G:"some information is missing",
+  H:"useful historical information"
+};
+
+function buildPart3() {
+  const websites = [
+    [21,"National Geographic"],[22,"United Nations"],[23,"Energy Information Administration"],
+    [24,"British Petroleum"],[25,"Central Intelligence Agency"],[26,"World Bank"]
+  ];
+  const q2728 = [
+    "They will keep the assessment criteria in mind.",
+    "They will limit the scale of their investigation.",
+    "They will select countries from all over the world.",
+    "They will collect data about two groups of countries.",
+    "They will find figures for wind and nuclear power."
+  ];
+  return `<div class="part-section" id="part3">
+    <div class="part-heading">PART 3</div>
+    <div class="part-instruction">Questions 21–26 · What do the students say about each website? Choose SIX correct answers, A–H.</div>
+    <div class="q-block">
+      <div style="font-size:0.82rem;color:var(--muted);margin-bottom:14px;line-height:2">
+        ${Object.entries(p3Comments).map(([k,v])=>`<strong>${k}</strong> ${v} &nbsp;&nbsp;`).join("")}
+      </div>
+      ${websites.map(([n,site])=>`<div class="match3-item">
+        <span class="q-num">${n}</span>
+        <label style="min-width:240px">${site}</label>
+        <select data-q="${n}">
+          <option value="">--</option>
+          ${Object.keys(p3Comments).map(k=>`<option value="${k}">${k}</option>`).join("")}
+        </select>
+      </div>`).join("")}
+    </div>
+    <div class="part-instruction" style="margin-top:32px">Questions 27–28 · Which TWO decisions do the students reach about the subject matter of their assignment?</div>
+    <div class="q-block">
+      ${[27,28].map(n=>`<div class="mcq-item" id="q-anchor-${n}">
+        <div class="mcq-question"><span class="q-num">${n}</span></div>
+        <div class="mcq-options">
+          ${q2728.map((o,i)=>{const l=String.fromCharCode(65+i);return`<label class="mcq-opt" data-q="${n}" data-val="${l}"><input type="radio" name="q${n}" value="${l}"><span class="opt-letter">${l}</span><span>${o}</span></label>`}).join("")}
+        </div>
+      </div>`).join("")}
+    </div>
+    <div class="part-instruction" style="margin-top:32px">Questions 29–30 · Which TWO decisions do the students reach about the subject matter of their assignment?</div>
+    <div class="q-block">
+      ${[29,30].map(n=>`<div class="mcq-item" id="q-anchor-${n}">
+        <div class="mcq-question"><span class="q-num">${n}</span></div>
+        <div class="mcq-options">
+          ${q2728.map((o,i)=>{const l=String.fromCharCode(65+i);return`<label class="mcq-opt" data-q="${n}" data-val="${l}"><input type="radio" name="q${n}" value="${l}"><span class="opt-letter">${l}</span><span>${o}</span></label>`}).join("")}
+        </div>
+      </div>`).join("")}
+    </div>
+  </div>`;
+}
+
+// ---- PART 4 ----
+function buildPart4() {
+  return `<div class="part-section" id="part4">
+    <div class="part-heading">PART 4</div>
+    <div class="part-instruction">Questions 31–40 · Complete the notes below. Write <strong>ONE WORD ONLY</strong> for each answer.</div>
+    <div class="notes-box">
+      <h3>Public Monument Assignment</h3>
+      <h4 class="section-heading">Section one</h4>
+      <p>First, identify the monument and justify your choice</p>
+      <p>Comment on the <span class="q-num">31</span><input class="inline-input" data-q="31" placeholder="…"> of the monument</p>
+      <p>Add information about its:</p>
+      <ul>
+        <li>geographical location</li>
+        <li><span class="q-num">32</span><input class="inline-input" data-q="32" placeholder="…"> significance</li>
+        <li>historical context</li>
+      </ul>
+      <p>Illustrate assignment with:</p>
+      <ul>
+        <li><span class="q-num">33</span><input class="inline-input" data-q="33" placeholder="…"></li>
+        <li>photos (with captions)</li>
+      </ul>
+      <p>End with: record of architect's achievements</p>
+      <h4 class="section-heading">Section two: Design and construction</h4>
+      <p>Include information about</p>
+      <ul>
+        <li>The <span class="q-num">34</span><input class="inline-input" data-q="34" placeholder="…"> of any particular style on the design</li>
+        <li>The <span class="q-num">35</span><input class="inline-input" data-q="35" placeholder="…"> used in construction</li>
+        <li>Specialist <span class="q-num">36</span><input class="inline-input" data-q="36" placeholder="…"> required</li>
+      </ul>
+      <h4 class="section-heading">Section three: Assessment of design</h4>
+      <p>Content should include:</p>
+      <ul>
+        <li>personal assessment</li>
+        <li>results of your survey</li>
+      </ul>
+      <p>Use personal assessment and survey to consider:</p>
+      <ul>
+        <li>the <span class="q-num">37</span><input class="inline-input" data-q="37" placeholder="…"> for building the monument</li>
+        <li>the monument's <span class="q-num">38</span><input class="inline-input" data-q="38" placeholder="…"> effect on members of the public</li>
+        <li>how well the monument suits its <span class="q-num">39</span><input class="inline-input" data-q="39" placeholder="…"></li>
+      </ul>
+      <p>Remember: Credit given for good <span class="q-num">40</span><input class="inline-input" data-q="40" placeholder="…"></p>
+    </div>
+  </div>`;
+}
+
+// ======================= LISTENERS =======================
+function attachListeners() {
+  // Text inputs
+  document.querySelectorAll('.inline-input').forEach(el => {
+    el.addEventListener('input', function() {
+      const q = parseInt(this.dataset.q);
+      userAnswers[q] = this.value.trim();
+      updateQBox(q, !!this.value.trim());
+    });
+  });
+  // MCQ radio
+  document.querySelectorAll('.mcq-opt').forEach(el => {
+    el.addEventListener('click', function() {
+      const q = parseInt(this.dataset.q);
+      const val = this.dataset.val;
+      userAnswers[q] = val;
+      document.querySelectorAll(`.mcq-opt[data-q="${q}"]`).forEach(o => o.classList.remove('selected'));
+      this.classList.add('selected');
+      this.querySelector('input').checked = true;
+      updateQBox(q, true);
+    });
+  });
+  // Selects (matching)
+  document.querySelectorAll('select[data-q]').forEach(el => {
+    el.addEventListener('change', function() {
+      const q = parseInt(this.dataset.q);
+      userAnswers[q] = this.value;
+      updateQBox(q, !!this.value);
+    });
+  });
+}
+
+function updateQBox(q, answered) {
+  const box = document.getElementById(`qbox-${q}`);
+  if (box) box.classList.toggle('answered', answered);
+}
+
+// ======================= SCROLL =======================
+function scrollToPart(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  closeSidebar();
+}
+function scrollToQ(q) {
+  const el = document.getElementById(`q-anchor-${q}`) || document.querySelector(`[data-q="${q}"]`);
+  el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  closeSidebar();
+}
+
+// ======================= SIDEBAR TOGGLE =======================
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+
+// ======================= MODAL =======================
+function openModal() { document.getElementById('modalOverlay').style.display = 'flex'; }
+function closeModal() { document.getElementById('modalOverlay').style.display = 'none'; }
+
+// ======================= SUBMIT =======================
+function submitExam() {
+  closeModal();
+  // Grade
+  let score = 0;
+  const details = {};
+  for (let q = 1; q <= 40; q++) {
+    const ua = (userAnswers[q] || "").toString().trim().toLowerCase();
+    const ca = ANSWER_KEY[q].toString().trim().toLowerCase();
+    const correct = ua === ca;
+    if (correct) score++;
+    details[q] = { user: userAnswers[q] || "", correct: ANSWER_KEY[q], ok: correct };
+  }
+
+  // Show result
+  document.getElementById("testScreen").style.display = "none";
+  const rs = document.getElementById("resultScreen");
+  rs.style.display = "flex";
+  document.getElementById("resFinalScore").textContent = score;
+  document.getElementById("resName").textContent = studentName;
+  document.getElementById("resCls").textContent = "Lớp: " + studentCls;
+
+
+  // Send data
+  const answersStr = JSON.stringify(userAnswers);
+  const params = new URLSearchParams({ test_name: TEST_NAME, name: studentName, cls: studentCls, score, answers: answersStr });
+  fetch(SCRIPT_URL + "?" + params.toString(), { method: "GET", mode: "no-cors" })
+    .then(() => { document.getElementById("resStatus").textContent = "✓ Kết quả đã được ghi nhận."; })
+    .catch(() => { document.getElementById("resStatus").textContent = "⚠ Không thể gửi kết quả. Vui lòng liên hệ giáo viên."; });
+}
+</script>
+</body>
+</html>
